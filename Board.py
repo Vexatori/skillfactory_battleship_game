@@ -40,7 +40,7 @@ class Board:
             raise ValueError("Начальная точка корабля находится за пределами доски")
         for dot in ship.dots:
             self.board_cells[dot.x][dot.y] = '\u25A0'
-        self.ships.append((ship))
+        self.ships.append(ship)
 
     def cells_available(self, ship):
         board_cells = []
@@ -55,7 +55,6 @@ class Board:
         return all([cell == '\u25EF' for cell in board_cells]) and all([0 <= c <= 5 for c in ship_dots_cords])
 
     def print_board(self):
-        board_cells = []
         for row in self.board_cells:
             # board_cells.append(['\u25EF' if self.__hid and elem == '\u25A0' else elem for elem in row])
             print("|".join(['\u25EF' if self.__hid and elem == '\u25A0' else elem for elem in row]))
