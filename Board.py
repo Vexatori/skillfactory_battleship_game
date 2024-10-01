@@ -1,9 +1,12 @@
+from BoardOutException import BoardOutException
 from Ship import Ship
+from Dot import Dot
+from BoardSetupException import BoardSetupException
 
 
 class Board:
     def __init__(self):
-        self.board_cells = [
+        self.__board_cells = [
             ['\u25EF', '\u25EF', '\u25EF', '\u25EF', '\u25EF', '\u25EF'],
             ['\u25EF', '\u25EF', '\u25EF', '\u25EF', '\u25EF', '\u25EF'],
             ['\u25EF', '\u25EF', '\u25EF', '\u25EF', '\u25EF', '\u25EF'],
@@ -11,9 +14,13 @@ class Board:
             ['\u25EF', '\u25EF', '\u25EF', '\u25EF', '\u25EF', '\u25EF'],
             ['\u25EF', '\u25EF', '\u25EF', '\u25EF', '\u25EF', '\u25EF']
         ]
-        self.ships = []
+        self.__ships = []
         self.__hid = True
-        self.ships_alive = 0
+        self.__ships_alive = 0
+
+    @property
+    def ships_on_board(self):
+        return self.__ships
 
     @property
     def hidden(self):
@@ -22,28 +29,30 @@ class Board:
     @hidden.setter
     def hidden(self, is_hidden: bool):
         if not isinstance(is_hidden, bool):
-            raise ValueError("Значение видимости кораблей на доске должно быть булевым")
+            raise TypeError("Значение видимости кораблей на доске должно быть булевым")
         self.__hid = is_hidden
 
     def add_ship(self, ship):
-        if len(self.ships) == 7:
-            raise ValueError("На доске нет места для кораблей, уже резмещено максимальное количество")
-        if ship.length == 3 and len([s for s in self.ships if s.length == 3]) == 1:
-            raise ValueError("На доске уже есть корабль длинной в 3 клетки, вы не можете поставить еще один")
-        if ship.length == 2 and len([s for s in self.ships if s.length == 2]) == 2:
-            raise ValueError("На доске уже есть два корабля длинной в 2 клетки, вы не можете поставить больше")
-        if ship.length == 1 and len([s for s in self.ships if s.length == 2]) == 4:
-            raise ValueError("На доске уже есть четыре корабля длинной в 1 клетку, вы не можете поставить больше")
+        if len(self.__ships) == 7:
+            raise BoardSetupException("На доске нет места для кораблей, уже резмещено максимальное количество")
+        if ship.length == 3 and len([s for s in self.__ships if s.length == 3]) == 1:
+            raise BoardSetupException("На доске уже есть корабль длинной в 3 клетки, вы не можете поставить еще один")
+        if ship.length == 2 and len([s for s in self.__ships if s.length == 2]) == 2:
+            raise BoardSetupException("На доске уже есть два корабля длинной в 2 клетки, вы не можете поставить больше")
+        if ship.length == 1 and len([s for s in self.__ships if s.length == 2]) == 4:
+            raise BoardSetupException("На доске уже есть четыре корабля длинной в 1 клетку, вы не можете поставить \
+                больше")
         if not self.cells_available(ship):
-            raise ValueError("Нельзя поставить корабль на указанные клетки.")
+            raise BoardSetupException("Нельзя поставить корабль на указанные клетки.")
         if not 0 <= ship.starting_point.x <= 5 or not 0 <= ship.starting_point.y <= 5:
-            raise ValueError("Начальная точка корабля находится за пределами доски")
+            raise BoardSetupException("Начальная точка корабля находится за пределами доски")
         for dot in ship.dots:
-            self.board_cells[dot.x][dot.y] = '\u25A0'
-        self.ships.append(ship)
+            self.__board_cells[dot.x][dot.y] = '\u25A0'
+        self.__ships.append(ship)
+        self.__ships_alive += 1
 
     def cells_available(self, ship):
-        board_cells = []
+        __board_cells = []
         ship_dots_cords = []
         for dot in ship.dots:
             i, j = dot.x, dot.y
@@ -51,13 +60,31 @@ class Board:
             ship_dots_cords.append(j)
             for i in [i for i in range(i - 1, i + 2) if 0 <= i <= 5]:
                 for j in [j for j in range(j - 1, j + 2) if 0 <= j <= 5]:
-                    board_cells.append(self.board_cells[i][j])
-        return all([cell == '\u25EF' for cell in board_cells]) and all([0 <= c <= 5 for c in ship_dots_cords])
+                    __board_cells.append(self.__board_cells[i][j])
+        return all([cell == '\u25EF' for cell in __board_cells]) and all([0 <= c <= 5 for c in ship_dots_cords])
 
     def print_board(self):
-        for row in self.board_cells:
-            # board_cells.append(['\u25EF' if self.__hid and elem == '\u25A0' else elem for elem in row])
+        for row in self.__board_cells:
             print("|".join(['\u25EF' if self.__hid and elem == '\u25A0' else elem for elem in row]))
+
+    def out(self, dot: Dot):
+        if not isinstance(dot, Dot):
+            raise TypeError("Проверять выход за границы поля можно только у точек")
+        return not 0 <= dot.x <= 5 or not 0 <= dot.y <= 5
+
+    def shot(self, dot: (Dot, tuple)):
+        if not isinstance(dot, Dot) or not isinstance(dot, tuple):
+            raise TypeError("Выстрел должен быть задан точкой или кортежем")
+        shot_dot = dot if isinstance(dot, Dot) else Dot(dot[0], dot[1])
+        if not 0 <= shot_dot.x <= 5 or not 0 <= shot_dot.y <= 5:
+            raise BoardOutException(shot_dot)
+        if self.__board_cells[shot_dot.x][shot_dot.y] in ['X', 'T']:
+            raise BoardSetupException("Нельзя выстрелить в уже подбитую точку")
+        if len([s for s in self.__ships if shot_dot in s.dots]) > 1:
+            self.__board_cells[shot_dot.x][shot_dot.y] = 'X'
+            [s for s in self.__ships if shot_dot in s.dots][0].decrease_health()
+        else:
+            self.__board_cells[shot_dot.x][shot_dot.y] = 'T'
 
 
 if __name__ == '__main__':
@@ -75,4 +102,9 @@ if __name__ == '__main__':
     board.add_ship(ship_2)
     board.add_ship(ship_3)
     board.add_ship(ship_4)
-    board.print_board()
+    # board.print_board()
+    some_dot = Dot(1, 0)
+    ship_on_dot = [s for s in board.ships_on_board if some_dot in s.dots]
+    print(*ship_on_dot[0].dots)
+    # for s in board.ships_on_board:
+    #     print(*s.dots)
