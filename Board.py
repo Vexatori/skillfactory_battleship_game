@@ -32,6 +32,11 @@ class Board:
             raise TypeError("Значение видимости кораблей на доске должно быть булевым")
         self.__hid = is_hidden
 
+    def out(self, dot: Dot):
+        if not isinstance(dot, Dot):
+            raise TypeError("Проверять выход за границы поля можно только у точек")
+        return not 0 <= dot.x <= 5 or not 0 <= dot.y <= 5
+
     def add_ship(self, ship):
         if len(self.__ships) == 7:
             raise BoardSetupException("На доске нет места для кораблей, уже резмещено максимальное количество")
@@ -44,7 +49,7 @@ class Board:
                 больше")
         if not self.cells_available(ship):
             raise BoardSetupException("Нельзя поставить корабль на указанные клетки.")
-        if not 0 <= ship.starting_point.x <= 5 or not 0 <= ship.starting_point.y <= 5:
+        if self.out(ship.starting_point):
             raise BoardSetupException("Начальная точка корабля находится за пределами доски")
         for dot in ship.dots:
             self.__board_cells[dot.x][dot.y] = '\u25A0'
@@ -67,24 +72,21 @@ class Board:
         for row in self.__board_cells:
             print("|".join(['\u25EF' if self.__hid and elem == '\u25A0' else elem for elem in row]))
 
-    def out(self, dot: Dot):
-        if not isinstance(dot, Dot):
-            raise TypeError("Проверять выход за границы поля можно только у точек")
-        return not 0 <= dot.x <= 5 or not 0 <= dot.y <= 5
-
     def shot(self, dot: (Dot, tuple)):
         if not isinstance(dot, Dot) or not isinstance(dot, tuple):
             raise TypeError("Выстрел должен быть задан точкой или кортежем")
         shot_dot = dot if isinstance(dot, Dot) else Dot(dot[0], dot[1])
-        if not 0 <= shot_dot.x <= 5 or not 0 <= shot_dot.y <= 5:
+        if self.out(shot_dot):
             raise BoardOutException(shot_dot)
         if self.__board_cells[shot_dot.x][shot_dot.y] in ['X', 'T']:
             raise BoardSetupException("Нельзя выстрелить в уже подбитую точку")
         if len([s for s in self.__ships if shot_dot in s.dots]) > 1:
             self.__board_cells[shot_dot.x][shot_dot.y] = 'X'
             [s for s in self.__ships if shot_dot in s.dots][0].decrease_health()
+            return True
         else:
             self.__board_cells[shot_dot.x][shot_dot.y] = 'T'
+            return False
 
 
 if __name__ == '__main__':
