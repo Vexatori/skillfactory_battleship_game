@@ -47,7 +47,7 @@ class Board:
         if ship.length == 1 and len([s for s in self.__ships if s.length == 2]) == 4:
             raise BoardSetupException("На доске уже есть четыре корабля длинной в 1 клетку, вы не можете поставить \
                 больше")
-        if not self.cells_available(ship):
+        if not self.__cells_available(ship):
             raise BoardSetupException("Нельзя поставить корабль на указанные клетки.")
         if self.out(ship.starting_point):
             raise BoardSetupException("Начальная точка корабля находится за пределами доски")
@@ -56,7 +56,7 @@ class Board:
         self.__ships.append(ship)
         self.__ships_alive += 1
 
-    def cells_available(self, ship):
+    def __cells_available(self, ship):
         __board_cells = []
         ship_dots_cords = []
         for dot in ship.dots:

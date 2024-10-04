@@ -13,20 +13,31 @@ class Player:
     def ask(self):
         pass
 
-    def move(self):
-        nice_shot = True
-        shot_dot = None
+    def move(self, shot_dot):
+        try_shot = shot_dot
+        nice_shot = None
         while True:
-            while (not shot_dot or len(shot_dot) < 2
-                   or not isinstance(shot_dot[0], int) or not isinstance(shot_dot[1], int) or nice_shot):
-                if not shot_dot or len(shot_dot) < 2 or not isinstance(shot_dot[0], int):
-                    shot_str = "Необходимо ввести правильные координаты для хода: "
-                else:
-                    shot_str = "Введите через пробел координаты хода: "
-                shot_dot = str(input(f"{shot_str}")).split()
             try:
-                nice_shot = self.__foes_board.shot(shot_dot)
-                if not nice_shot:
-                    break
+                nice_shot = self.__foes_board.shot(try_shot)
             except (BoardOutException, BoardSetupException) as e:
                 print(f"Неверный ход: {e.message}")
+                try_shot = self.ask()
+            else:
+                break
+        return nice_shot
+        # nice_shot = True
+        # shot_dot = None
+        # while True:
+        #     while (not shot_dot or len(shot_dot) < 2
+        #            or not isinstance(shot_dot[0], int) or not isinstance(shot_dot[1], int) or nice_shot):
+        #         if not shot_dot or len(shot_dot) < 2 or not isinstance(shot_dot[0], int):
+        #             shot_str = "Необходимо ввести правильные координаты для хода: "
+        #         else:
+        #             shot_str = "Введите через пробел координаты хода: "
+        #         shot_dot = str(input(f"{shot_str}")).split()
+        #     try:
+        #         nice_shot = self.__foes_board.shot(shot_dot)
+        #         if not nice_shot:
+        #             break
+        #     except (BoardOutException, BoardSetupException) as e:
+        #         print(f"Неверный ход: {e.message}")
