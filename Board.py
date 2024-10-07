@@ -19,6 +19,10 @@ class Board:
         self.__ships_alive = 0
 
     @property
+    def ships_alive_on_board(self):
+        return self.__ships_alive
+
+    @property
     def ships_on_board(self):
         return self.__ships
 
@@ -45,28 +49,34 @@ class Board:
         if ship.length == 2 and len([s for s in self.__ships if s.length == 2]) == 2:
             raise BoardSetupException("На доске уже есть два корабля длинной в 2 клетки, вы не можете поставить больше")
         if ship.length == 1 and len([s for s in self.__ships if s.length == 2]) == 4:
-            raise BoardSetupException("На доске уже есть четыре корабля длинной в 1 клетку, вы не можете поставить \
-                больше")
+            raise BoardSetupException("На доске уже есть четыре корабля длинной в 1 клетку, вы не можете поставить"
+                                      "больше")
+        if not 1 <= ship.length <= 3:
+            raise BoardSetupException("Нельзя установить корабль длинной, не входящей в диапазон от 1 до 3, включая")
         if not self.__cells_available(ship):
-            raise BoardSetupException("Нельзя поставить корабль на указанные клетки.")
+            raise BoardSetupException(f"Нельзя поставить корабль на указанные клетки: {ship}")
         if self.out(ship.starting_point):
-            raise BoardSetupException("Начальная точка корабля находится за пределами доски")
+            raise BoardSetupException(f"Начальная точка корабля находится за пределами доски: {ship.starting_point}")
         for dot in ship.dots:
             self.__board_cells[dot.x][dot.y] = '\u25A0'
         self.__ships.append(ship)
         self.__ships_alive += 1
 
     def __cells_available(self, ship):
-        __board_cells = []
+        board_cells = []
         ship_dots_cords = []
+        all_cords = []
+        if not all([all([0 <= d.x <= 5, 0 <= d.y <= 5]) for d in ship.dots]):
+            return False
         for dot in ship.dots:
-            i, j = dot.x, dot.y
-            ship_dots_cords.append(i)
-            ship_dots_cords.append(j)
-            for i in [i for i in range(i - 1, i + 2) if 0 <= i <= 5]:
-                for j in [j for j in range(j - 1, j + 2) if 0 <= j <= 5]:
-                    __board_cells.append(self.__board_cells[i][j])
-        return all([cell == '\u25EF' for cell in __board_cells]) and all([0 <= c <= 5 for c in ship_dots_cords])
+            m, n = dot.x, dot.y
+            ship_dots_cords.append(m)
+            ship_dots_cords.append(n)
+            for i in [i for i in range(m - 1, m + 2) if 0 <= i <= 5]:
+                for j in [j for j in range(n - 1, n + 2) if 0 <= j <= 5]:
+                    board_cells.append(self.__board_cells[i][j])
+                    all_cords.append((i, j))
+        return all([cell == '\u25EF' for cell in board_cells]) and all([0 <= c <= 5 for c in ship_dots_cords])
 
     def print_board(self):
         for row in self.__board_cells:
@@ -82,7 +92,10 @@ class Board:
             raise BoardSetupException("Нельзя выстрелить в уже подбитую точку")
         if len([s for s in self.__ships if shot_dot in s.dots]) > 1:
             self.__board_cells[shot_dot.x][shot_dot.y] = 'X'
-            [s for s in self.__ships if shot_dot in s.dots][0].decrease_health()
+            ship_on_board = [s for s in self.__ships if shot_dot in s.dots][0]
+            ship_on_board.decrease_health()
+            if ship_on_board.health == 0:
+                self.__ships_alive -= 1
             return True
         else:
             self.__board_cells[shot_dot.x][shot_dot.y] = 'T'
@@ -100,13 +113,17 @@ if __name__ == '__main__':
     ship_2 = Ship(2, (4, 0), 'h')
     ship_3 = Ship(2, (0, 2), 'h')
     ship_4 = Ship(1, (0, 5), 'v')
+    ship_5 = Ship(1, (5, 3), 'h')
     board.add_ship(ship_1)
     board.add_ship(ship_2)
     board.add_ship(ship_3)
     board.add_ship(ship_4)
-    # board.print_board()
-    some_dot = Dot(1, 0)
-    ship_on_dot = [s for s in board.ships_on_board if some_dot in s.dots]
-    print(*ship_on_dot[0].dots)
+    ship_6 = Ship(3, (5, 5), 'h')
+    print(all([all([0 <= d.x <= 5, 0 <= d.y <= 5]) for d in ship_6.dots]))
+    print(board._Board__cells_available(ship_5))
+    # # board.print_board()
+    # some_dot = Dot(1, 0)
+    # ship_on_dot = [s for s in board.ships_on_board if some_dot in s.dots]
+    # print(*ship_on_dot[0].dots)
     # for s in board.ships_on_board:
     #     print(*s.dots)

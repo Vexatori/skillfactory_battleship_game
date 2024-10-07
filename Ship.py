@@ -2,7 +2,7 @@ from Dot import Dot
 
 
 class Ship:
-    def __init__(self, length: int, dot: (Dot, tuple), direction: str):
+    def __init__(self, length: (int, str), dot: (Dot, tuple), direction: str):
         """
         Конструктор класса Ship
         Параметры
@@ -14,14 +14,14 @@ class Ship:
         direction : int
                 направление корабля: h - горизонтальное, v - вертикальное
         """
-        if not isinstance(length, int):
+        if isinstance(length, str) and not length.lstrip("-").isnumeric():
             raise TypeError("Длина корабля должна быть числом")
         if not isinstance(dot, Dot) and not isinstance(dot, tuple):
             raise TypeError("Начальная точка корабля должна быть точкой (Dot) или кортежем")
         if not isinstance(direction, str) or direction not in ['h', 'v']:
             raise ValueError("Направление корабля должно задаваться символами h - горизонтальное, или v - вертикальное")
-        self.__ship_length = length
-        self.__ship_health = length
+        self.__ship_length = int(length)
+        self.__ship_health = int(length)
         self.__ship_starting_point = dot if isinstance(dot, Dot) else Dot(dot[0], dot[1])
         self.__ship_direction = direction
 
@@ -44,8 +44,12 @@ class Ship:
     @property
     def dots(self):
         dot = self.__ship_starting_point
-        return [Dot(dot.x + (0 if self.__ship_direction == 'h' else i), dot.y + (0 if self.__ship_direction == 'v' else i)) for i in
-                range(self.length)]
+        sd = self.__ship_direction
+        return [Dot(dot.x + (0 if sd == 'h' else i), dot.y + (0 if sd == 'v' else i)) for i in range(self.length)]
 
     def decrease_health(self):
         self.__ship_health -= 1
+
+    def __str__(self):
+        ship_dots = ", ".join([str(d) for d in self.dots])
+        return f'Ship: length: {self.__ship_length}, health: {self.__ship_health}, ship_dots: {ship_dots}, direction: {self.__ship_direction}'

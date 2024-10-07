@@ -1,9 +1,12 @@
 class Dot:
-    def __init__(self, x: int, y: int):
-        if not isinstance(x, int) and not isinstance(y, int):
+    def __init__(self, x: (str, int), y: (str, int)):
+        if ((isinstance(x, str) and not x.lstrip("-").isnumeric())
+                or (isinstance(y, str) and not y.lstrip("-").isnumeric())):
             raise TypeError("Координаты точки должны быть числом")
-        self.__x_cor = x
-        self.__y_cor = y
+        # если ввод точки был ручной, то делаем -1 у точки, т.к человек вводит числа не как компуктер) у него индексы
+        # с 1 начинаются
+        self.__x_cor = int(x) + (-1 if isinstance(x, str) else 0)
+        self.__y_cor = int(y) + (-1 if isinstance(y, str) else 0)
 
     @property
     def x(self):
