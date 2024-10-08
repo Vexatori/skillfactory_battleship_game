@@ -81,16 +81,17 @@ class Board:
     def print_board(self):
         for row in self.__board_cells:
             print("|".join(['\u25EF' if self.__hid and elem == '\u25A0' else elem for elem in row]))
+        print()
 
     def shot(self, dot: (Dot, tuple)):
-        if not isinstance(dot, Dot) or not isinstance(dot, tuple):
+        if not isinstance(dot, Dot) and not isinstance(dot, tuple):
             raise TypeError("Выстрел должен быть задан точкой или кортежем")
         shot_dot = dot if isinstance(dot, Dot) else Dot(dot[0], dot[1])
         if self.out(shot_dot):
             raise BoardOutException(shot_dot)
         if self.__board_cells[shot_dot.x][shot_dot.y] in ['X', 'T']:
             raise BoardSetupException("Нельзя выстрелить в уже подбитую точку")
-        if len([s for s in self.__ships if shot_dot in s.dots]) > 1:
+        if len([s for s in self.__ships if shot_dot in s.dots]) >= 1:
             self.__board_cells[shot_dot.x][shot_dot.y] = 'X'
             ship_on_board = [s for s in self.__ships if shot_dot in s.dots][0]
             ship_on_board.decrease_health()

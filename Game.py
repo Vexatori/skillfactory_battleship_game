@@ -60,22 +60,34 @@ class Game:
         """)
 
     def __loop(self):
-        while self.players_board.ships_alive_on_board != 0 or self.ai_board.ships_alive_on_board != 0:
+        while self.players_board.ships_alive_on_board != 0 and self.ai_board.ships_alive_on_board != 0:
             players_move = None
             players_shot = None
             while players_shot is None or players_shot:
+                if self.ai_board.ships_alive_on_board == 0:
+                    break
                 players_move = self.player.ask()
                 players_shot = self.player.move(players_move)
+                if players_shot is not None:
+                    print("Ваш ход:")
+                    self.ai_board.print_board()
             ai_move = None
             ai_shot = None
             while ai_shot is None or ai_shot:
+                if self.players_board.ships_alive_on_board == 0:
+                    break
                 ai_move = self.ai.ask()
                 ai_shot = self.ai.move(ai_move)
-        return "Победа Игрока!" if self.ai_board.ships_alive_on_board == 0 else "Победа ИИ! Стыдно, мешок с костями..."
+                if ai_shot is not None:
+                    print("Ход противника:")
+                    self.players_board.print_board()
+        return ("Победа Игрока! ИИ все еще далеко до человеков!" if self.ai_board.ships_alive_on_board == 0
+                else "Победа ИИ! ИИ превзошел человеков...")
 
     def start(self):
         Game.greet()
         self.ai_board = Game.random_board()
+        self.ai_board.hidden = False
         players_board_variant = None
         while players_board_variant not in [1, 2]:
             players_board_variant = input("Игрок, введите 1 или 2 для ручного или автоматического создания доски: ")
@@ -97,6 +109,8 @@ class Game:
                     print(f"Ошибка создания корабля: {e}")
                 else:
                     self.players_board.print_board()
+        print("Ваша доска:")
+        self.players_board.print_board()
         self.ai = AI(self.ai_board, self.players_board)
         self.player = User(self.players_board, self.ai_board)
         print(self.__loop())
@@ -106,6 +120,12 @@ if __name__ == '__main__':
     # board = Game.random_board()
     # board.hidden = False
     # board.print_board()
+    # my_board = Game.random_board()
+    # user = User(my_board, board)
+    # while True:
+    #     shot = user.ask()
+    #     user.move(shot)
+    #     board.print_board()
     new_game = Game()
     new_game.start()
 

@@ -5,7 +5,7 @@ from BoardSetupException import BoardSetupException
 
 class Player:
     def __init__(self, board, foes_board):
-        if not isinstance(board, Board) or not isinstance(foes_board, Board):
+        if not isinstance(board, Board) and not isinstance(foes_board, Board):
             raise TypeError("Доски игроков должны быть экземплярами Board")
         self.__players_board = board
         self.__foes_board = foes_board
@@ -18,8 +18,8 @@ class Player:
         while True:
             try:
                 nice_shot = self.__foes_board.shot(shot_dot)
-            except (BoardOutException, BoardSetupException) as e:
-                print(f"Неверный ход: {e.message}")
+            except (BoardOutException, BoardSetupException, TypeError) as e:
+                print(f"Неверный ход: {e}")
                 return nice_shot
             else:
                 break
