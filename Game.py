@@ -81,13 +81,14 @@ class Game:
                 if ai_shot is not None:
                     print("Ход противника:")
                     self.players_board.print_board()
-        return ("Победа Игрока! ИИ все еще далеко до человеков!" if self.ai_board.ships_alive_on_board == 0
-                else "Победа ИИ! ИИ превзошел человеков...")
+        return ("Победа Игрока!" if self.ai_board.ships_alive_on_board == 0
+                else "Победа ИИ!")
 
     def start(self):
         Game.greet()
         self.ai_board = Game.random_board()
-        self.ai_board.hidden = False
+        # строку ниже можно раскомментить, чтобы проверить логику попаданий игрока
+        # self.ai_board.hidden = False
         players_board_variant = None
         while players_board_variant not in [1, 2]:
             players_board_variant = input("Игрок, введите 1 или 2 для ручного или автоматического создания доски: ")

@@ -1,8 +1,24 @@
+from BoardOutException import BoardOutException
+from BoardSetupException import BoardSetupException
 from Dot import Dot
 from Player import Player
 
 
 class User(Player):
+    def __move_decorator(func):
+        def wrapper(*args, **kwargs):
+            nice_shot = func(*args, **kwargs)
+            if nice_shot is None:
+                print("Неверный ход, вы попали в уже подбитую клетку или задали неверные координаты. "
+                      "Попробуйте еще раз.")
+            return nice_shot
+        return wrapper
+
+    # Декоратор для того, чтобы предупреждать пользователя о неверном ходе. Для ИИ такого ненужно.
+    @__move_decorator
+    def move(self, shot_dot):
+        return super().move(shot_dot)
+
     def ask(self):
         shot_dot = None
         shot_str = "Необходимо ввести через пробел правильные координаты (два числа через пробел) для хода: "

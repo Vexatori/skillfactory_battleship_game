@@ -14,12 +14,13 @@ class Player:
         pass
 
     def move(self, shot_dot):
+        # return self.__foes_board.shot(shot_dot)
         nice_shot = None
         while True:
             try:
                 nice_shot = self.__foes_board.shot(shot_dot)
             except (BoardOutException, BoardSetupException, TypeError) as e:
-                print(f"Неверный ход: {e}")
+                # print(f"Неверный ход: {e}")
                 return nice_shot
             else:
                 break
