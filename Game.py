@@ -118,21 +118,5 @@ class Game:
 
 
 if __name__ == '__main__':
-    # board = Game.random_board()
-    # board.hidden = False
-    # board.print_board()
-    # my_board = Game.random_board()
-    # user = User(my_board, board)
-    # while True:
-    #     shot = user.ask()
-    #     user.move(shot)
-    #     board.print_board()
     new_game = Game()
     new_game.start()
-
-# ■|◯|■|◯|■|◯
-# ■|◯|◯|◯|◯|◯
-# ■|◯|■|◯|◯|◯
-# ◯|◯|■|◯|◯|■
-# ■|■|◯|◯|◯|◯
-# ◯|◯|◯|■|◯|◯

@@ -101,30 +101,3 @@ class Board:
         else:
             self.__board_cells[shot_dot.x][shot_dot.y] = 'T'
             return False
-
-
-if __name__ == '__main__':
-    # test_board = Board()
-    # for r in test_board.board_condition:
-    #     print("|".join(r))
-    # print(list(range(-1, 2)))
-    board = Board()
-    board.hidden = False
-    ship_1 = Ship(3, (0, 0), 'v')
-    ship_2 = Ship(2, (4, 0), 'h')
-    ship_3 = Ship(2, (0, 2), 'h')
-    ship_4 = Ship(1, (0, 5), 'v')
-    ship_5 = Ship(1, (5, 3), 'h')
-    board.add_ship(ship_1)
-    board.add_ship(ship_2)
-    board.add_ship(ship_3)
-    board.add_ship(ship_4)
-    ship_6 = Ship(3, (5, 5), 'h')
-    print(all([all([0 <= d.x <= 5, 0 <= d.y <= 5]) for d in ship_6.dots]))
-    print(board._Board__cells_available(ship_5))
-    # # board.print_board()
-    # some_dot = Dot(1, 0)
-    # ship_on_dot = [s for s in board.ships_on_board if some_dot in s.dots]
-    # print(*ship_on_dot[0].dots)
-    # for s in board.ships_on_board:
-    #     print(*s.dots)

@@ -3,17 +3,6 @@ from Dot import Dot
 
 class Ship:
     def __init__(self, length: (int, str), dot: (Dot, tuple), direction: str):
-        """
-        Конструктор класса Ship
-        Параметры
-        ---------
-        length : int
-                длина корабля
-        dot : Dot or tuple
-                начальная точка корабля (его нос)
-        direction : int
-                направление корабля: h - горизонтальное, v - вертикальное
-        """
         if isinstance(length, str) and not length.lstrip("-").isnumeric():
             raise TypeError("Длина корабля должна быть числом")
         if not isinstance(dot, Dot) and not isinstance(dot, tuple):
