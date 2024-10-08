@@ -1,5 +1,3 @@
-from BoardOutException import BoardOutException
-from BoardSetupException import BoardSetupException
 from Dot import Dot
 from Player import Player
 from random import randint
