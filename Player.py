@@ -18,8 +18,7 @@ class Player:
         while True:
             try:
                 nice_shot = self.__foes_board.shot(shot_dot)
-            except (BoardOutException, BoardSetupException, TypeError) as e:
-                # print(f"Неверный ход: {e}")
+            except (BoardOutException, BoardSetupException, TypeError):
                 return nice_shot
             else:
                 break
